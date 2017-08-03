@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import Sim from '../classes/Sim'
+import Sim from '../../js/classes/Sim'
 
 export default {
 	name: 'hello',
@@ -19,7 +19,7 @@ export default {
 	},
 	data () {
 		return {
-			sim: null
+			sim: {}
 		}
 	}
 }
