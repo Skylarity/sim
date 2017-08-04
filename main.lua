@@ -4,7 +4,6 @@ Sim = require 'classes.Sim'
 
 function love.load()
 	sim = Sim()
-	print(sim.msg)
 end
 
 function love.update()

@@ -1,7 +1,7 @@
 Sim = Class{}
 
 function Sim:init()
-	self.msg = 'Hello!'
+	self.age = 0
 end
 
 return Sim
