@@ -17,3 +17,10 @@ function HyperCircle:draw()
 
 	love.graphics.setLineWidth(1)
 end
+
+function HyperCircle:setRadius(new_radius)
+	local new_outer_radius = new_radius * 1.5
+
+	timer:tween('radius', 1, hyper_circle, {radius = new_radius}, 'out-elastic')
+	timer:tween('outer_radius', 2, hyper_circle, {outer_radius = new_outer_radius}, 'out-elastic')
+end

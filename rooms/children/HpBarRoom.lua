@@ -10,7 +10,7 @@ function HpBarRoom:new()
 	hp = {
 		front = 100,
 		back = 100,
-		neg_color = {r = 255, g = 70, b = 70, a = 150},
+		neg_color = {r = 255, g = 70, b = 70, a = 255},
 		pos_color = {r = 70, g = 255, b = 70, a = 255},
 		front_color = {r = 255, g = 70, b = 70, a = 255},
 		back_color = {r = 255, g = 70, b = 70, a = 150}
@@ -24,7 +24,9 @@ function HpBarRoom:update(dt)
 		if new_hp >= 100 then new_hp = 100 end
 
 		if new_hp >= hp.front then
-			timer:tween('hp_color', .2, hp.front_color, hp.pos_color, 'out-quad')
+			timer:tween('hp_color', .2, hp.front_color, hp.pos_color, 'out-quad', function()
+				timer:tween('hp_color', .2, hp.front_color, hp.neg_color, 'out-quad')
+			end)
 		elseif new_hp < hp.front then
 			timer:tween('hp_color', .2, hp.front_color, hp.neg_color, 'out-quad')
 		end

@@ -19,8 +19,8 @@ function love.load()
 	rooms = {}
 	current_room = nil
 
-	-- goToRoom('HyperCircleRoom', 'main')
-	goToRoom('HpBarRoom', 'main')
+	goToRoom('HyperCircleRoom', 'main')
+	-- goToRoom('HpBarRoom', 'main')
 end
 
 function love.update(dt)
