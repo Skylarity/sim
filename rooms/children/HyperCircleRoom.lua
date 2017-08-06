@@ -59,19 +59,8 @@ function HyperCircleRoom:update(dt)
 end
 
 function HyperCircleRoom:draw()
-	--[[ BEGIN DRAWING THROUGH CAMERA ]]--
-	camera:attach()
-	--[[ DRAW WORLD HERE ]]--
-
-	for _, planet in ipairs(planets) do
-		planet:draw()
-	end
-
-	--[[ END DRAWING THROUGH CAMERA ]]--
-	camera:detach()
-	--[[ DRAW HUD HERE ]]--
-
-	love.graphics.print("HUD", 10, 10)
+	camera:draw(HyperCircleRoom.drawWorld)
+	HyperCircleRoom.drawHud()
 end
 
 function HyperCircleRoom:activate()
@@ -80,4 +69,14 @@ end
 
 function HyperCircleRoom:deactivate()
     -- body
+end
+
+function HyperCircleRoom:drawWorld()
+	for _, planet in ipairs(planets) do
+		planet:draw()
+	end
+end
+
+function HyperCircleRoom:drawHud()
+	love.graphics.print("HUD", 10, 10)
 end
