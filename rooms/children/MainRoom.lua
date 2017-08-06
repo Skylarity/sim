@@ -76,7 +76,7 @@ function MainRoom:drawHud()
 
 	--[[ CROSSHAIR ]]--
 	if found_selected_body then
-		love.graphics.setLineWidth(6)
+		love.graphics.setLineWidth(6) -- TODO: Tween here instead of this
 	else
 		love.graphics.setLineWidth(2)
 	end
