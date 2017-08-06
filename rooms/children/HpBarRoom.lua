@@ -1,7 +1,7 @@
 HpBarRoom = Room:extend()
 
 function HpBarRoom:new()
-    self.super.new(self)
+    HpBarRoom.super.new(self)
     self.area = Area()
 
 	input:bind('mouse1', 'damage')

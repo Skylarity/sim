@@ -1,26 +1,44 @@
 HyperCircleRoom = Room:extend()
 
 function HyperCircleRoom:new()
-    self.super.new(self)
+    HyperCircleRoom.super.new(self)
     self.area = Area()
 
-	hyper_circle = HyperCircle(self.area, 400, 300, 50, 2, 100)
+	planets = {}
+	table.insert(planets, HyperCircle(300, 200, 0, 0, 2, 1.5))
+	table.insert(planets, HyperCircle(400, 300, 0, 0, 2, 2))
+	table.insert(planets, HyperCircle(500, 400, 0, 0, 2, 1.25))
+	for _, planet in ipairs(planets) do
+		planet:setRadius(25)
+	end
+
 	input:bind('mouse1', 'circle')
 end
 
 function HyperCircleRoom:update(dt)
-	hyper_circle:update(dt)
+	local pressed = false
 	if input:pressed('circle') then
-		love.graphics.setColor((love.math.random() * 105) + 150, (love.math.random() * 105) + 150, (love.math.random() * 105) + 150, 255)
+		pressed = true
+	else
+		pressed = false
+	end
 
-		local new_radius = (love.math.random() * 25) + 25
-		local new_outer_radius = new_radius + (love.math.random() * 10) + 40
-		hyper_circle:setRadius(new_radius)
+	for _, planet in ipairs(planets) do
+		planet:update(dt)
+
+		if pressed then
+			local new_radius = (love.math.random() * 25) + 25
+			local new_outer_radius = new_radius + (love.math.random() * 10) + 40
+			planet:setRadius(new_radius)
+		end
 	end
 end
 
 function HyperCircleRoom:draw()
-    hyper_circle:draw()
+	for i, planet in ipairs(planets) do
+		planet:draw()
+		love.graphics.print(planet.radius, 10, 12 * i)
+	end
 end
 
 function HyperCircleRoom:activate()

@@ -1,12 +1,12 @@
 Circle = GameObject:extend()
 
-function Circle:new(area, x, y, radius, opts)
-    Circle.super.new(self, area, x, y, opts)
+function Circle:new(x, y, radius, opts)
+    Circle.super.new(self, x, y, opts)
 	self.radius = radius
 end
 
 function Circle:update(dt)
-    -- body
+    Circle.super.update(self, dt)
 end
 
 function Circle:draw()

@@ -1,10 +1,10 @@
 GameObject = Object:extend()
 
-function GameObject:new(area, x, y, opts)
+function GameObject:new(x, y, opts)
     local opts = opts or {}
     if opts then for k, v in pairs(opts) do self[k] = v end end
 
-    self.area = area
+    -- self.area = area
 	-- area:addGameObject(self, x, y, opts)
 
     self.x, self.y = x, y
