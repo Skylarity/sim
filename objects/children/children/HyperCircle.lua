@@ -27,6 +27,6 @@ end
 function HyperCircle:setRadius(new_radius)
 	local new_outer_radius = new_radius * self.outer_radius_multiplier
 
-	timer:tween('radius', 1, self, {radius = new_radius}, 'out-elastic')
-	timer:tween('outer_radius', 2, self, {outer_radius = new_outer_radius}, 'out-elastic')
+	self.timer:tween('radius', 1, self, {radius = new_radius}, 'out-elastic')
+	self.timer:tween('outer_radius', 2, self, {outer_radius = new_outer_radius}, 'out-elastic')
 end

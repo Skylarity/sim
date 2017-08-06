@@ -35,9 +35,8 @@ function HyperCircleRoom:update(dt)
 end
 
 function HyperCircleRoom:draw()
-	for i, planet in ipairs(planets) do
+	for _, planet in ipairs(planets) do
 		planet:draw()
-		love.graphics.print(planet.radius, 10, 12 * i)
 	end
 end
 
