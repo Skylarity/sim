@@ -9,9 +9,15 @@ function MainRoom:new()
 	table.insert(bodies, Body(300, 200, 0, 1.5, 2))
 	table.insert(bodies, Body(400, 300, 0, 2, 2))
 	table.insert(bodies, Body(500, 400, 0, 1.25, 2))
+
+	default_radius = 25
+	selected_radius = 50
+
 	for _, body in ipairs(bodies) do
-		body:setRadius(25)
+		body:setRadius(default_radius)
 	end
+	selected_body = nil
+	found_selected_body = false
 
 	--[[ CAMERA ]]--
 	player = {
@@ -22,13 +28,16 @@ function MainRoom:new()
 		frictionMax = 1,
 		frictionSpeed = .05
 	}
+	selection_range = 25
+	bounds = {
+		x = player.x - selection_range,
+		y = player.y - selection_range,
+		width = player.x + selection_range,
+		height = player.y + selection_range
+	}
 	camera = Camera(player.x, player.y)
 
 	--[[ INPUTS ]]--
-	-- body
-	input:bind('space', 'circle')
-	input:bind('mouse1', 'circle')
-
 	-- Camera
 	MainRoom:cameraControlsInit()
 end
@@ -64,6 +73,17 @@ function MainRoom:drawHud()
 	for i, body in ipairs(bodies) do
 		love.graphics.print("Body " .. i .. " radius - " .. string.format("%.2f", body.radius), 10, i * 16)
 	end
+
+	--[[ CROSSHAIR ]]--
+	if found_selected_body then
+		love.graphics.setLineWidth(6)
+	else
+		love.graphics.setLineWidth(2)
+	end
+	love.graphics.setColor(255, 255, 255, 150)
+	love.graphics.line((bounds.x + bounds.width) / 2, bounds.y, (bounds.x + bounds.width) / 2, bounds.height)
+	love.graphics.line(bounds.x, (bounds.y + bounds.height) / 2, bounds.width, (bounds.y + bounds.height) / 2)
+	love.graphics.setLineWidth(1)
 end
 
 function MainRoom:cameraControlsInit()
@@ -112,21 +132,36 @@ function MainRoom:cameraControl(dt)
 	camera:move(dx/2, dy/2)
 end
 
-function MainRoom:bodyUpdate(dt)
-	local pressed = false
-	if input:pressed('circle') then
-		pressed = true
+function MainRoom:inCameraSelectRange(obj)
+	if obj.x > bounds.x and obj.y > bounds.y and obj.x < bounds.width and obj.y < bounds.height then
+		return true
 	else
-		pressed = false
+		return false
 	end
+end
 
-	for _, body in ipairs(bodies) do
-		body:update(dt)
+function MainRoom:bodyUpdate(dt)
+	--[[ SELECTION ]]--
+	found_selected_body = false
 
-		if pressed then
-			local new_radius = (love.math.random() * 25) + 25
-			local new_outer_radius = new_radius + (love.math.random() * 10) + 40
-			body:setRadius(new_radius)
+	--[[ MAIN LOOP ]]--
+	for i, body in ipairs(bodies) do
+		--[[ SELECTION ]]--
+		if (MainRoom:inCameraSelectRange(body)) then
+			found_selected_body = true
+			selected_body = i
 		end
+
+		if selected_body == i then
+			body:setRadius(selected_radius)
+		else
+			body:setRadius(default_radius)
+		end
+
+		--[[ UPDATE ]]--
+		body:update(dt)
 	end
+
+	--[[ SELECTION ]]--
+	if not found_selected_body then selected_body = nil end
 end
