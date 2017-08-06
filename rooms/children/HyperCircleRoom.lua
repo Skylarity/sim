@@ -22,16 +22,19 @@ function HyperCircleRoom:new()
 	camera = Camera(player.x, player.y)
 
 	--[[ INPUTS ]]--
+	-- Planet
 	input:bind('space', 'circle')
 	input:bind('mouse1', 'circle')
 
-	input:bind('up', 'moveUp')
-	input:bind('down', 'moveDown')
-	input:bind('left', 'moveLeft')
-	input:bind('right', 'moveRight')
+	-- Camera
+	input:bind('up', 'camUp')
+	input:bind('down', 'camDown')
+	input:bind('left', 'camLeft')
+	input:bind('right', 'camRight')
 end
 
 function HyperCircleRoom:update(dt)
+	--[[ PLANET RENDERING ]]--
 	local pressed = false
 	if input:pressed('circle') then
 		pressed = true
@@ -49,10 +52,11 @@ function HyperCircleRoom:update(dt)
 		end
 	end
 
-	if (input:down('moveUp')) then player.y = player.y - player.speed end
-	if (input:down('moveDown')) then player.y = player.y + player.speed end
-	if (input:down('moveLeft')) then player.x = player.x - player.speed end
-	if (input:down('moveRight')) then player.x = player.x + player.speed end
+	--[[ CAMERA CONTROLS ]]--
+	if (input:down('camUp')) then player.y = player.y - player.speed end
+	if (input:down('camDown')) then player.y = player.y + player.speed end
+	if (input:down('camLeft')) then player.x = player.x - player.speed end
+	if (input:down('camRight')) then player.x = player.x + player.speed end
 
 	local dx,dy = player.x - camera.x, player.y - camera.y
 	camera:move(dx/2, dy/2)
