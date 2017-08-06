@@ -1,7 +1,7 @@
-HyperCircleRoom = Room:extend()
+MainRoom = Room:extend()
 
-function HyperCircleRoom:new()
-    HyperCircleRoom.super.new(self)
+function MainRoom:new()
+    MainRoom.super.new(self)
     self.area = Area()
 
 	--[[ PLANETS ]]--
@@ -27,13 +27,10 @@ function HyperCircleRoom:new()
 	input:bind('mouse1', 'circle')
 
 	-- Camera
-	input:bind('up', 'camUp')
-	input:bind('down', 'camDown')
-	input:bind('left', 'camLeft')
-	input:bind('right', 'camRight')
+	MainRoom:cameraControls()
 end
 
-function HyperCircleRoom:update(dt)
+function MainRoom:update(dt)
 	--[[ PLANET RENDERING ]]--
 	local pressed = false
 	if input:pressed('circle') then
@@ -62,25 +59,36 @@ function HyperCircleRoom:update(dt)
 	camera:move(dx/2, dy/2)
 end
 
-function HyperCircleRoom:draw()
-	camera:draw(HyperCircleRoom.drawWorld)
-	HyperCircleRoom.drawHud()
+function MainRoom:draw()
+	camera:draw(MainRoom.drawWorld)
+	MainRoom.drawHud()
 end
 
-function HyperCircleRoom:activate()
+function MainRoom:activate()
     -- body
 end
 
-function HyperCircleRoom:deactivate()
+function MainRoom:deactivate()
     -- body
 end
 
-function HyperCircleRoom:drawWorld()
+function MainRoom:drawWorld()
 	for _, planet in ipairs(planets) do
 		planet:draw()
 	end
 end
 
-function HyperCircleRoom:drawHud()
+function MainRoom:drawHud()
 	love.graphics.print("HUD", 10, 10)
+end
+
+function MainRoom:cameraControls()
+	input:bind('up', 'camUp')
+	input:bind('down', 'camDown')
+	input:bind('left', 'camLeft')
+	input:bind('right', 'camRight')
+	input:bind('w', 'camUp')
+	input:bind('s', 'camDown')
+	input:bind('a', 'camLeft')
+	input:bind('d', 'camRight')
 end
