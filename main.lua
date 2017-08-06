@@ -1,5 +1,6 @@
 require 'helpers.helpers'
 Object = require 'lib.classic.classic'
+Camera = require 'lib.hump.camera'
 Input = require 'lib.boipushy.Input'
 Timer = require 'lib.enhanced_timer.EnhancedTimer'
 Moses = require 'lib.moses.Moses'
