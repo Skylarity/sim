@@ -17,16 +17,14 @@ function MainRoom:new()
 		body:setRadius(default_radius)
 	end
 	selected_body = nil
-	found_selected_body = false
 
 	--[[ CAMERA ]]--
 	player = {
 		x = love.graphics.getWidth() / 2,
 		y = love.graphics.getHeight() / 2,
-		speed = 700,
-		friction = 0,
-		frictionMax = 1,
-		frictionSpeed = .05
+		xspeed = 0,
+		yspeed = 0,
+		maxSpeed = 700
 	}
 	selection_range = 25
 	bounds = {
@@ -75,7 +73,7 @@ function MainRoom:drawHud()
 	end
 
 	--[[ CROSSHAIR ]]--
-	if found_selected_body then
+	if selected_body then
 		love.graphics.setLineWidth(6) -- TODO: Tween here instead of this
 	else
 		love.graphics.setLineWidth(2)
@@ -113,20 +111,21 @@ function MainRoom:cameraControlsInit()
 end
 
 function MainRoom:cameraControl(dt)
-	if (input:down('camMoving')) then
-		if player.friction < player.frictionMax then
-			player.friction = player.friction + player.frictionSpeed
-		end
-	else
-		if player.friction > 0 then
-			player.friction = player.friction - player.frictionSpeed
-		end
-		if player.friction < 0 then player.friction = 0 end
+	local camera_acceleration = .2
+	if (input:down('camLeft')) then timer:tween('camera_speed_l', camera_acceleration, player, {xspeed = -(player.maxSpeed)}, 'linear') end
+	if (input:down('camRight')) then timer:tween('camera_speed_r', camera_acceleration, player, {xspeed = player.maxSpeed}, 'linear') end
+	if (input:down('camUp')) then timer:tween('camera_speed_u', camera_acceleration, player, {yspeed = -(player.maxSpeed)}, 'linear') end
+	if (input:down('camDown')) then timer:tween('camera_speed_d', camera_acceleration, player, {yspeed = player.maxSpeed}, 'linear') end
+	if not input:down('camLeft') and not input:down('camRight') then
+		timer:tween('camera_speed_l', camera_acceleration, player, {xspeed = 0}, 'linear')
+		timer:tween('camera_speed_r', camera_acceleration, player, {xspeed = 0}, 'linear')
 	end
-	if (input:down('camUp')) then player.y = player.y - (player.speed * player.friction * dt) end
-	if (input:down('camDown')) then player.y = player.y + (player.speed * player.friction * dt) end
-	if (input:down('camLeft')) then player.x = player.x - (player.speed * player.friction * dt) end
-	if (input:down('camRight')) then player.x = player.x + (player.speed * player.friction * dt) end
+	if not input:down('camUp') and not input:down('camDown') then
+		timer:tween('camera_speed_u', camera_acceleration, player, {yspeed = 0}, 'linear')
+		timer:tween('camera_speed_d', camera_acceleration, player, {yspeed = 0}, 'linear')
+	end
+	player.x = player.x + (player.xspeed * dt)
+	player.y = player.y + (player.yspeed * dt)
 
 	local dx,dy = player.x - camera.x, player.y - camera.y
 	camera:move(dx/2, dy/2)
@@ -142,7 +141,7 @@ end
 
 function MainRoom:bodyUpdate(dt)
 	--[[ SELECTION ]]--
-	found_selected_body = false
+	local found_selected_body = false
 
 	--[[ MAIN LOOP ]]--
 	for i, body in ipairs(bodies) do

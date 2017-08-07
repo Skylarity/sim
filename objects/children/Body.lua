@@ -5,9 +5,9 @@ function Body:new(x, y, radius, outer_radius_multiplier, line_width)
 	self.radius, self.line_width, self.outer_radius_multiplier = radius, line_width, outer_radius_multiplier
 	self.outer_radius = self.radius * self.outer_radius_multiplier
 	self.color = {
-		r = (love.math.random() * 105) + 150,
-		g = (love.math.random() * 105) + 150,
-		b = (love.math.random() * 105) + 150,
+		r = (love.math.random() * 155) + 100,
+		g = (love.math.random() * 155) + 100,
+		b = (love.math.random() * 155) + 100,
 		a = 255
 	}
 end
