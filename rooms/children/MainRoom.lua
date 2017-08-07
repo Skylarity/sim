@@ -27,7 +27,7 @@ function MainRoom:new()
 		maxSpeed = 700
 	}
 	selection_range = 25
-	bounds = {
+	cam_bounds = {
 		x = player.x - selection_range,
 		y = player.y - selection_range,
 		width = player.x + selection_range,
@@ -79,8 +79,8 @@ function MainRoom:drawHud()
 		love.graphics.setLineWidth(2)
 	end
 	love.graphics.setColor(255, 255, 255, 150)
-	love.graphics.line((bounds.x + bounds.width) / 2, bounds.y, (bounds.x + bounds.width) / 2, bounds.height)
-	love.graphics.line(bounds.x, (bounds.y + bounds.height) / 2, bounds.width, (bounds.y + bounds.height) / 2)
+	love.graphics.line((cam_bounds.x + cam_bounds.width) / 2, cam_bounds.y, (cam_bounds.x + cam_bounds.width) / 2, cam_bounds.height)
+	love.graphics.line(cam_bounds.x, (cam_bounds.y + cam_bounds.height) / 2, cam_bounds.width, (cam_bounds.y + cam_bounds.height) / 2)
 	love.graphics.setLineWidth(1)
 end
 
@@ -132,7 +132,7 @@ function MainRoom:cameraControl(dt)
 end
 
 function MainRoom:inCameraSelectRange(obj)
-	if obj.x > bounds.x and obj.y > bounds.y and obj.x < bounds.width and obj.y < bounds.height then
+	if obj.x > cam_bounds.x and obj.y > cam_bounds.y and obj.x < cam_bounds.width and obj.y < cam_bounds.height then
 		return true
 	else
 		return false
