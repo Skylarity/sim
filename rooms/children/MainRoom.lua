@@ -146,7 +146,7 @@ function MainRoom:bodyUpdate(dt)
 	--[[ MAIN LOOP ]]--
 	for i, body in ipairs(bodies) do
 		--[[ SELECTION ]]--
-		if (MainRoom:inCameraSelectRange(body)) then
+		if not found_selected_body and (MainRoom:inCameraSelectRange(body)) then
 			found_selected_body = true
 			selected_body = i
 		end
