@@ -71,8 +71,10 @@ function MainRoom:drawHud()
 	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), 100)
 	love.graphics.setColor(255, 255, 255, 255)
 	for i, body in ipairs(bodies) do
-		love.graphics.print("Body " .. i .. " radius - " .. string.format("%.2f", body.radius), 10, i * 16)
+		love.graphics.setColor(body.color.r, body.color.g, body.color.b, body.color.a)
+		love.graphics.print("Body " .. i .. " radius - " .. string.format("%.2f", body.radius), 0, i * 16)
 	end
+	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.print(cam_bounds.x1 .. " " .. cam_bounds.y1 .. " " .. cam_bounds.x2 .. " " .. cam_bounds.y2)
 
 	--[[ CROSSHAIR ]]--
