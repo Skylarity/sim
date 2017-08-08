@@ -26,14 +26,16 @@ function MainRoom:new()
 		yspeed = 0,
 		maxSpeed = 700
 	}
-	selection_range = 25
-	cam_bounds = {
-		x = player.x - selection_range,
-		y = player.y - selection_range,
-		width = player.x + selection_range,
-		height = player.y + selection_range
-	}
+	MainRoom:updateCamBounds()
 	camera = Camera(player.x, player.y)
+
+	--[[ CROSSHAIR ]]--
+	initial_line_weight = 2
+	crosshair = {
+		min_line_weight = initial_line_weight,
+		max_line_weight = 6,
+		line_weight = initial_line_weight
+	}
 
 	--[[ INPUTS ]]--
 	-- Camera
@@ -71,16 +73,17 @@ function MainRoom:drawHud()
 	for i, body in ipairs(bodies) do
 		love.graphics.print("Body " .. i .. " radius - " .. string.format("%.2f", body.radius), 10, i * 16)
 	end
+	love.graphics.print(cam_bounds.x1 .. " " .. cam_bounds.y1 .. " " .. cam_bounds.x2 .. " " .. cam_bounds.y2)
 
 	--[[ CROSSHAIR ]]--
 	if selected_body then
-		love.graphics.setLineWidth(6) -- TODO: Tween here instead of this
+		timer:tween('crosshair_line_width', 1, crosshair, {line_weight = crosshair.max_line_weight}, 'out-elastic')
 	else
-		love.graphics.setLineWidth(2)
+		timer:tween('crosshair_line_width', 1, crosshair, {line_weight = crosshair.min_line_weight}, 'out-elastic')
 	end
+	love.graphics.setLineWidth(crosshair.line_weight)
 	love.graphics.setColor(255, 255, 255, 150)
-	love.graphics.line((cam_bounds.x + cam_bounds.width) / 2, cam_bounds.y, (cam_bounds.x + cam_bounds.width) / 2, cam_bounds.height)
-	love.graphics.line(cam_bounds.x, (cam_bounds.y + cam_bounds.height) / 2, cam_bounds.width, (cam_bounds.y + cam_bounds.height) / 2)
+	love.graphics.rectangle('line', (love.graphics.getWidth() / 2) - selection_range, (love.graphics.getHeight() / 2) - selection_range, selection_range * 2, selection_range * 2)
 	love.graphics.setLineWidth(1)
 end
 
@@ -126,22 +129,33 @@ function MainRoom:cameraControl(dt)
 	end
 	player.x = player.x + (player.xspeed * dt)
 	player.y = player.y + (player.yspeed * dt)
+	MainRoom:updateCamBounds()
 
 	local dx,dy = player.x - camera.x, player.y - camera.y
 	camera:move(dx/2, dy/2)
 end
 
 function MainRoom:inCameraSelectRange(obj)
-	if obj.x > cam_bounds.x and obj.y > cam_bounds.y and obj.x < cam_bounds.width and obj.y < cam_bounds.height then
+	if obj.x > cam_bounds.x1 and obj.y > cam_bounds.y1 and obj.x < cam_bounds.x2 and obj.y < cam_bounds.y2 then
 		return true
 	else
 		return false
 	end
 end
 
+function MainRoom:updateCamBounds()
+	selection_range = 25
+	cam_bounds = {
+		x1 = player.x - selection_range,
+		y1 = player.y - selection_range,
+		x2 = player.x + selection_range,
+		y2 = player.y + selection_range
+	}
+end
+
 function MainRoom:bodyUpdate(dt)
 	--[[ SELECTION ]]--
-	local found_selected_body = false
+	found_selected_body = false
 
 	--[[ MAIN LOOP ]]--
 	for i, body in ipairs(bodies) do
