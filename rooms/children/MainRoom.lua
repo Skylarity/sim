@@ -87,9 +87,9 @@ function MainRoom:drawHud()
 
 	--[[ CROSSHAIR ]]--
 	if selected_body then
-		timer:tween('crosshair_line_width', 1, crosshair, {line_weight = crosshair.max_line_weight}, 'out-elastic')
+		timer:tween('crosshair_line_width', 1, crosshair, {line_weight = crosshair.max_line_weight}, 'out-elastic') -- bouncy selection
 	else
-		timer:tween('crosshair_line_width', 1, crosshair, {line_weight = crosshair.min_line_weight}, 'out-elastic')
+		timer:tween('crosshair_line_width', 1, crosshair, {line_weight = crosshair.min_line_weight}, 'linear') -- smooth deselection
 	end
 	love.graphics.setLineWidth(crosshair.line_weight)
 	love.graphics.setColor(255, 255, 255, 150)
