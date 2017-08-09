@@ -4,19 +4,27 @@ function MainRoom:new()
     MainRoom.super.new(self)
     self.area = Area()
 
-	--[[ bodies ]]--
-	bodies = {}
-	table.insert(bodies, Body(300, 200, 0, 1.5, 2))
-	table.insert(bodies, Body(400, 300, 0, 2, 2))
-	table.insert(bodies, Body(500, 400, 0, 1.25, 2))
+	--[[ SELECTION ]]--
+	selected_body = nil
 
-	default_radius = 25
-	selected_radius = 50
+	--[[ BODIES ]]--
+	bodies = {}
+	for i=1, love.math.random(6, 10) do
+		local coords = {
+			x = love.math.random(0, love.graphics.getWidth()),
+			y = love.math.random(0, love.graphics.getHeight())
+		}
+		table.insert(bodies, Body(coords.x,
+									coords.y,
+									25,
+									50,
+									love.math.random() + 1,
+									2))
+	end
 
 	for _, body in ipairs(bodies) do
-		body:setRadius(default_radius)
+		body:setRadius(body.default_radius)
 	end
-	selected_body = nil
 
 	--[[ CAMERA ]]--
 	player = {
@@ -24,7 +32,8 @@ function MainRoom:new()
 		y = love.graphics.getHeight() / 2,
 		xspeed = 0,
 		yspeed = 0,
-		maxSpeed = 700
+		maxSpeed = 700,
+		moving_to_body = false
 	}
 	MainRoom:updateCamBounds()
 	camera = Camera(player.x, player.y)
@@ -61,18 +70,17 @@ function MainRoom:deactivate()
 end
 
 function MainRoom:drawWorld()
-	for _, body in ipairs(bodies) do
-		body:draw()
+	for i, body in ipairs(bodies) do
+		if selected_body ~= i then body:draw() end
 	end
+	if selected_body then bodies[selected_body]:draw() end
 end
 
 function MainRoom:drawHud()
-	love.graphics.setColor(0, 0, 0, 100)
-	love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), 100)
 	love.graphics.setColor(255, 255, 255, 255)
 	for i, body in ipairs(bodies) do
 		love.graphics.setColor(body.color.r, body.color.g, body.color.b, body.color.a)
-		love.graphics.print("Body " .. i .. " radius - " .. string.format("%.2f", body.radius), 0, i * 16)
+		love.graphics.print("Body " .. i .. " - " .. tostring(body.selected) .. " - radius - " .. string.format("%.2f", body.radius), 0, i * 16)
 	end
 	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.print(cam_bounds.x1 .. " " .. cam_bounds.y1 .. " " .. cam_bounds.x2 .. " " .. cam_bounds.y2)
@@ -116,6 +124,19 @@ function MainRoom:cameraControlsInit()
 end
 
 function MainRoom:cameraControl(dt)
+	if selected_body then
+		if not player.moving_to_body then
+			player.moving_to_body = true
+			timer:tween('move_to_body', .2, player, {x = bodies[selected_body].x, y = bodies[selected_body].y}, 'linear', function()
+				player.moving_to_body = false
+			end)
+		end
+	end
+	if input:down('camMoving') then
+		timer:cancel('move_to_body')
+		player.moving_to_body = false
+	end
+
 	local camera_acceleration = .2
 	if (input:down('camLeft')) then timer:tween('camera_speed_l', camera_acceleration, player, {xspeed = -(player.maxSpeed)}, 'linear') end
 	if (input:down('camRight')) then timer:tween('camera_speed_r', camera_acceleration, player, {xspeed = player.maxSpeed}, 'linear') end
@@ -137,12 +158,16 @@ function MainRoom:cameraControl(dt)
 	camera:move(dx/2, dy/2)
 end
 
-function MainRoom:inCameraSelectRange(obj)
-	if obj.x > cam_bounds.x1 and obj.y > cam_bounds.y1 and obj.x < cam_bounds.x2 and obj.y < cam_bounds.y2 then
+function MainRoom:inSelectRange(obj, bounds)
+	if obj.x > bounds.x1 and obj.y > bounds.y1 and obj.x < bounds.x2 and obj.y < bounds.y2 then
 		return true
 	else
 		return false
 	end
+end
+
+function MainRoom:inCameraSelectRange(obj)
+	return MainRoom:inSelectRange(obj, cam_bounds)
 end
 
 function MainRoom:updateCamBounds()
@@ -168,9 +193,9 @@ function MainRoom:bodyUpdate(dt)
 		end
 
 		if selected_body == i then
-			body:setRadius(selected_radius)
+			body.selected = true
 		else
-			body:setRadius(default_radius)
+			body.selected = false
 		end
 
 		--[[ UPDATE ]]--
@@ -178,5 +203,7 @@ function MainRoom:bodyUpdate(dt)
 	end
 
 	--[[ SELECTION ]]--
-	if not found_selected_body then selected_body = nil end
+	if not found_selected_body then
+		selected_body = nil
+	end
 end

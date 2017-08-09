@@ -6,7 +6,7 @@ function Room:new()
 end
 
 function Room:update(dt)
-    -- body
+    if self.timer then self.timer:update(dt) end
 end
 
 function Room:draw()
