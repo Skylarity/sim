@@ -43,6 +43,7 @@ end
 function Body:setRadius(new_radius)
 	local new_outer_radius = new_radius * self.outer_radius_multiplier
 
+	-- TODO: Fix this broken-ass bullshit
 	if not self.setting_radius and not self.setting_outer_radius then
 		self.setting_radius = true
 		self.setting_outer_radius = true
