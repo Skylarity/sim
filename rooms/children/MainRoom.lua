@@ -33,7 +33,8 @@ function MainRoom:new()
 		xspeed = 0,
 		yspeed = 0,
 		maxSpeed = 700,
-		moving_to_body = false
+		moving_to_body = false,
+		ships = {}
 	}
 	MainRoom:updateCamBounds()
 	camera = Camera(player.x, player.y)
@@ -49,11 +50,14 @@ function MainRoom:new()
 	--[[ INPUTS ]]--
 	-- Camera
 	MainRoom:cameraControlsInit()
+	-- Ships
+	input:bind('space', 'ship')
 end
 
 function MainRoom:update(dt)
 	MainRoom:cameraControl(dt)
 	MainRoom:bodyUpdate(dt)
+	MainRoom:shipUpdate(dt)
 end
 
 function MainRoom:draw()
@@ -74,6 +78,10 @@ function MainRoom:drawWorld()
 		if selected_body ~= i then body:draw() end
 	end
 	if selected_body then bodies[selected_body]:draw() end
+
+	for i, ship in ipairs(player.ships) do
+		ship:draw()
+	end
 end
 
 function MainRoom:drawHud()
@@ -205,5 +213,17 @@ function MainRoom:bodyUpdate(dt)
 	--[[ SELECTION ]]--
 	if not found_selected_body then
 		selected_body = nil
+	end
+end
+
+function MainRoom:shipUpdate(dt)
+	if input:pressed('ship') and selected_body then
+		table.insert(player.ships, Ship(bodies[selected_body].x,
+										bodies[selected_body].y,
+										bodies[selected_body]))
+	end
+
+	for i, ship in ipairs(player.ships) do
+		ship:update(dt)
 	end
 end
