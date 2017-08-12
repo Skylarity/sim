@@ -11,13 +11,19 @@ function Body:new(x, y, default_radius, selected_radius, outer_radius_multiplier
 		a = 255
 	}
 
-	self.selected = false
+	self.selected, self.selection_change = true, false
+	self:select(false)
 	self.default_radius, self.selected_radius = default_radius, selected_radius
-	self.setting_radius, self.setting_outer_radius = false, false
 end
 
 function Body:update(dt)
 	Body.super.update(self, dt)
+
+	if self.selection_change then
+		-- self.selection_change = false
+		-- self.timer:cancel('radius')
+		-- self.timer:cancel('outer_radius')
+	end
 
 	if self.selected then
 		self:setRadius(self.selected_radius)
@@ -40,15 +46,20 @@ function Body:draw()
 	love.graphics.setColor(255, 255, 255, 255)
 end
 
+function Body:select(selection_type)
+	if selection_type ~= self.selected then
+		self.selection_change = true
+	end
+	self.selected = selection_type
+end
+
 function Body:setRadius(new_radius)
 	local new_outer_radius = new_radius * self.outer_radius_multiplier
 
-	-- TODO: Fix this broken-ass bullshit
-	if not self.setting_radius and not self.setting_outer_radius then
-		self.setting_radius = true
-		self.setting_outer_radius = true
+	if self.selection_change then
+		self.selection_change = false
 
-		self.timer:tween('radius', 1, self, {radius = new_radius}, 'out-elastic', function() self.setting_radius = false end)
-		self.timer:tween('outer_radius', 2, self, {outer_radius = new_outer_radius}, 'out-elastic', function() self.setting_outer_radius = false end)
+		self.timer:tween('radius', 1, self, {radius = new_radius}, 'out-elastic')
+		self.timer:tween('outer_radius', 2, self, {outer_radius = new_outer_radius}, 'out-elastic')
 	end
 end

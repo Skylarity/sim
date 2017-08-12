@@ -193,9 +193,9 @@ function MainRoom:bodyUpdate(dt)
 		end
 
 		if selected_body == i then
-			body.selected = true
+			body:select(true)
 		else
-			body.selected = false
+			body:select(false)
 		end
 
 		--[[ UPDATE ]]--
