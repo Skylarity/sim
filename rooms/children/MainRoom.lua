@@ -50,12 +50,17 @@ function MainRoom:new()
 	})
 	cam_effects = s_filmgrain:chain(s_sep_chroma):chain(s_scanlines):chain(s_crt)
 
+	--[[ MOUSE ]]--
+	love.mouse.setVisible(false)
+	mouse_radius = 4
+
 	--[[ CROSSHAIR ]]--
 	initial_line_weight = 2
 	crosshair = {
 		min_line_weight = initial_line_weight,
 		max_line_weight = 6,
-		line_weight = initial_line_weight
+		line_weight = initial_line_weight,
+		color = {r = 255, g = 255, b = 255, a = 150}
 	}
 
 	--[[ RESOURCES ]]--
@@ -154,22 +159,7 @@ function MainRoom:drawHud()
 	local width, width_half = love.graphics.getWidth(), love.graphics.getWidth() / 2
 	local height, height_half = love.graphics.getHeight(), love.graphics.getHeight() / 2
 	local text_pad = 8
-
-	--[[ UI ]]--
-	-- Coordinates
-	love.graphics.setColor(0, 0, 0, 200)
-	love.graphics.rectangle('fill', 0, 0, width, ui_font_size * 2)
-	love.graphics.setColor(255, 255, 255, 255)
-	local coord_string = "(" .. string.format("%.0f", player.x) .. ", " .. string.format("%.0f", player.y) .. ")"
-	love.graphics.printf(coord_string, text_pad, text_pad, width, 'left')
-	-- Resources
-	love.graphics.setColor(0, 0, 0, 200)
-	love.graphics.rectangle('fill', 0, height - (ui_font_size * 2), width, ui_font_size * 2)
-	love.graphics.setColor(255, 255, 255, 255)
-	local resource_string = 'Minerals: ' .. string.format("%.0f", player.resources.minerals) .. " - " .. "Food: " .. string.format("%.0f", player.resources.farmed_goods)
-	love.graphics.printf(resource_string, text_pad, height - text_pad - ui_font_size, width - text_pad, 'center')
-	-- Selected body
-	-- TODO
+	local bg_color = {r = 0, g = 0, b = 0, a = 100}
 
 	--[[ CROSSHAIR ]]--
 	if selected_body then
@@ -178,16 +168,50 @@ function MainRoom:drawHud()
 		timer:tween('crosshair_line_width', .1, crosshair, {line_weight = crosshair.min_line_weight})
 	end
 	love.graphics.setLineWidth(crosshair.line_weight)
-	love.graphics.setColor(255, 255, 255, 150)
+	love.graphics.setColor(crosshair.color.r, crosshair.color.g, crosshair.color.b, crosshair.color.a)
 	love.graphics.rectangle('line', (width / 2) - selection_range, (height / 2) - selection_range, selection_range * 2, selection_range * 2)
 
 	love.graphics.setLineWidth(1)
-	love.graphics.setColor(255, 255, 255, 100)
+	love.graphics.setColor(crosshair.color.r, crosshair.color.g, crosshair.color.b, crosshair.color.a * .75)
 	local crosshair_offset = 10
 	love.graphics.line(width_half, crosshair_offset, width_half, height_half - selection_range - crosshair_offset)
 	love.graphics.line(crosshair_offset, height_half, width_half - selection_range - crosshair_offset, height_half)
 	love.graphics.line(width_half, height_half + selection_range + crosshair_offset, width_half, height - crosshair_offset)
 	love.graphics.line(width_half + selection_range + crosshair_offset, height_half, width - crosshair_offset, height_half)
+
+	--[[ UI ]]--
+	-- Coordinates
+	love.graphics.setColor(bg_color.r, bg_color.g, bg_color.b, bg_color.a)
+	love.graphics.rectangle('fill', 0, 0, width, ui_font_size * 2)
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setLineWidth(2)
+	love.graphics.line(0, ui_font_size * 2, width, ui_font_size * 2)
+
+	local coord_string = "location: (" .. string.format("%.0f", player.x) .. ", " .. string.format("%.0f", player.y) .. ")"
+	love.graphics.printf(coord_string, text_pad, text_pad, width, 'left')
+	-- Resources
+	love.graphics.setColor(bg_color.r, bg_color.g, bg_color.b, bg_color.a)
+	love.graphics.rectangle('fill', 0, height - (ui_font_size * 2), width, ui_font_size * 2)
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setLineWidth(2)
+	love.graphics.line(0, height - (ui_font_size * 2), width, height - (ui_font_size * 2))
+
+	local mineral_string = 'minerals: ' .. string.format("%.0f", player.resources.minerals)
+	local food_string = "food: " .. string.format("%.0f", player.resources.farmed_goods)
+	love.graphics.printf(mineral_string, text_pad, height - text_pad - ui_font_size, width_half - (text_pad * 2), 'right')
+	love.graphics.printf(food_string, width_half + text_pad, height - text_pad - ui_font_size, width - text_pad, 'left')
+
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setLineWidth(2)
+	love.graphics.line(width_half, height - (ui_font_size * 2), width_half, height)
+	-- Selected body
+	-- TODO
+
+	--[[ MOUSE ]]--
+	-- ALWAYS DRAW LAST --
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setLineWidth(2)
+	love.graphics.rectangle('line', love.mouse.getX() - mouse_radius, love.mouse.getY() - mouse_radius, mouse_radius * 2, mouse_radius * 2)
 end
 
 function MainRoom:cameraControlsInit()
@@ -253,8 +277,12 @@ function MainRoom:cameraControl(dt)
 		timer:tween('camera_speed_u', camera_acceleration, player, {yspeed = 0}, 'linear')
 		timer:tween('camera_speed_d', camera_acceleration, player, {yspeed = 0}, 'linear')
 	end
-	player.x = player.x + (player.xspeed * dt)
-	player.y = player.y + (player.yspeed * dt)
+
+	local new_x, new_y = player.x + (player.xspeed * dt), player.y + (player.yspeed * dt)
+	if new_x < 0 then new_x = 0 elseif new_x > world.bounds.x2 then new_x = world.bounds.x2 end
+	if new_y < 0 then new_y = 0 elseif new_y > world.bounds.y2 then new_y = world.bounds.y2 end
+	player.x = new_x
+	player.y = new_y
 	MainRoom:updateCamBounds()
 
 	local dx,dy = player.x - camera.x, player.y - camera.y
