@@ -5,7 +5,8 @@ function MainRoom:new()
     self.area = Area()
 
 	--[[ FONTS ]]--
-	MainRoom.ui_font = love.graphics.newFont(16)
+	ui_font_size = 16
+	MainRoom.ui_font = love.graphics.newFont(ui_font_size)
 
 	--[[ INPUTS ]]--
 	input:bind('mouse1', 'click')
@@ -38,7 +39,16 @@ function MainRoom:new()
 	}
 	MainRoom:updateCamBounds()
 	camera = Camera(player.x, player.y)
-	-- TODO: Implement https://github.com/vrld/shine
+	local s_crt = shine.crt()
+	local s_filmgrain = shine.filmgrain({
+		opacity = 0.24
+	})
+	local s_scanlines = shine.scanlines()
+	local s_sep_chroma = shine.separate_chroma({
+		angle = math.rad(45),
+		radius = 3
+	})
+	cam_effects = s_filmgrain:chain(s_sep_chroma):chain(s_scanlines):chain(s_crt)
 
 	--[[ CROSSHAIR ]]--
 	initial_line_weight = 2
@@ -111,8 +121,10 @@ function MainRoom:update(dt)
 end
 
 function MainRoom:draw()
-	camera:draw(MainRoom.drawWorld)
-	MainRoom.drawHud()
+	cam_effects:draw(function()
+		camera:draw(MainRoom.drawWorld)
+		MainRoom.drawHud()
+	end)
 end
 
 function MainRoom:activate()
@@ -139,13 +151,25 @@ function MainRoom:drawHud()
 	love.graphics.setFont(MainRoom.ui_font)
 	love.graphics.setColor(255, 255, 255, 255)
 
+	local width, width_half = love.graphics.getWidth(), love.graphics.getWidth() / 2
+	local height, height_half = love.graphics.getHeight(), love.graphics.getHeight() / 2
+	local text_pad = 8
+
 	--[[ UI ]]--
+	-- Coordinates
+	love.graphics.setColor(0, 0, 0, 200)
+	love.graphics.rectangle('fill', 0, 0, width, ui_font_size * 2)
+	love.graphics.setColor(255, 255, 255, 255)
+	local coord_string = "(" .. string.format("%.0f", player.x) .. ", " .. string.format("%.0f", player.y) .. ")"
+	love.graphics.printf(coord_string, text_pad, text_pad, width, 'left')
 	-- Resources
 	love.graphics.setColor(0, 0, 0, 200)
-	love.graphics.rectangle('fill', 0, love.graphics.getHeight() - 32, love.graphics.getWidth(), 32)
+	love.graphics.rectangle('fill', 0, height - (ui_font_size * 2), width, ui_font_size * 2)
 	love.graphics.setColor(255, 255, 255, 255)
 	local resource_string = 'Minerals: ' .. string.format("%.0f", player.resources.minerals) .. " - " .. "Food: " .. string.format("%.0f", player.resources.farmed_goods)
-	love.graphics.printf(resource_string, 0, love.graphics.getHeight() - 8 - 16, love.graphics.getWidth(), 'center')
+	love.graphics.printf(resource_string, text_pad, height - text_pad - ui_font_size, width - text_pad, 'center')
+	-- Selected body
+	-- TODO
 
 	--[[ CROSSHAIR ]]--
 	if selected_body then
@@ -155,8 +179,15 @@ function MainRoom:drawHud()
 	end
 	love.graphics.setLineWidth(crosshair.line_weight)
 	love.graphics.setColor(255, 255, 255, 150)
-	love.graphics.rectangle('line', (love.graphics.getWidth() / 2) - selection_range, (love.graphics.getHeight() / 2) - selection_range, selection_range * 2, selection_range * 2)
+	love.graphics.rectangle('line', (width / 2) - selection_range, (height / 2) - selection_range, selection_range * 2, selection_range * 2)
+
 	love.graphics.setLineWidth(1)
+	love.graphics.setColor(255, 255, 255, 100)
+	local crosshair_offset = 10
+	love.graphics.line(width_half, crosshair_offset, width_half, height_half - selection_range - crosshair_offset)
+	love.graphics.line(crosshair_offset, height_half, width_half - selection_range - crosshair_offset, height_half)
+	love.graphics.line(width_half, height_half + selection_range + crosshair_offset, width_half, height - crosshair_offset)
+	love.graphics.line(width_half + selection_range + crosshair_offset, height_half, width - crosshair_offset, height_half)
 end
 
 function MainRoom:cameraControlsInit()

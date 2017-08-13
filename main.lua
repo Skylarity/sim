@@ -1,4 +1,5 @@
 require 'helpers.helpers'
+shine = require 'lib.shine'
 Object = require 'lib.classic.classic'
 Camera = require 'lib.hump.camera'
 Input = require 'lib.boipushy.Input'
