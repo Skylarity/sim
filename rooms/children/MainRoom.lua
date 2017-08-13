@@ -86,7 +86,6 @@ function MainRoom:new()
 
 			for i, other_body in ipairs(bodies) do
 				if MainRoom:inSelectRange(other_body, bounds) then
-					print('conflict')
 					coords_conflict = true
 					break
 				else
