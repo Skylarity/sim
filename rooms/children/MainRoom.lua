@@ -21,7 +21,7 @@ function MainRoom:new()
 									coords.y,
 									25,
 									50,
-									(love.math.random() + 1.5) - .5,
+									2,
 									2))
 	end
 
@@ -45,6 +45,7 @@ function MainRoom:new()
 	}
 	MainRoom:updateCamBounds()
 	camera = Camera(player.x, player.y)
+	-- TODO: Implement https://github.com/vrld/shine
 
 	--[[ RESOURCES ]]--
 	timer:every('resources', 1, function()
@@ -110,7 +111,7 @@ function MainRoom:drawHud()
 	love.graphics.setColor(0, 0, 0, 200)
 	love.graphics.rectangle('fill', 0, love.graphics.getHeight() - 32, love.graphics.getWidth(), 32)
 	love.graphics.setColor(255, 255, 255, 255)
-	local resource_string = 'Minerals: ' .. string.format("%.2f", player.resources.minerals) .. " - " .. "Food: " .. string.format("%.2f", player.resources.farmed_goods)
+	local resource_string = 'Minerals: ' .. string.format("%.0f", player.resources.minerals) .. " - " .. "Food: " .. string.format("%.0f", player.resources.farmed_goods)
 	love.graphics.printf(resource_string, 0, love.graphics.getHeight() - 8 - 16, love.graphics.getWidth(), 'center')
 
 	--[[ CROSSHAIR ]]--
