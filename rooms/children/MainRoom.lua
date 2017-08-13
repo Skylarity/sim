@@ -85,19 +85,14 @@ function MainRoom:drawWorld()
 end
 
 function MainRoom:drawHud()
+	--[[ RESET ]]--
 	love.graphics.setColor(255, 255, 255, 255)
-	for i, body in ipairs(bodies) do
-		love.graphics.setColor(body.color.r, body.color.g, body.color.b, body.color.a)
-		love.graphics.print("Body " .. i .. " - " .. tostring(body.selected) .. " - " .. string.format("%.2f", body.radius), 0, i * 16)
-	end
-	love.graphics.setColor(255, 255, 255, 255)
-	love.graphics.print(string.format("%.2f", cam_bounds.x1) .. " " .. string.format("%.2f", cam_bounds.y1) .. " " .. string.format("%.2f", cam_bounds.x2) .. " " .. string.format("%.2f", cam_bounds.y2))
 
 	--[[ CROSSHAIR ]]--
 	if selected_body then
-		timer:tween('crosshair_line_width', 1, crosshair, {line_weight = crosshair.max_line_weight}, 'out-elastic') -- bouncy selection
+		timer:tween('crosshair_line_width', .1, crosshair, {line_weight = crosshair.max_line_weight})
 	else
-		timer:tween('crosshair_line_width', 1, crosshair, {line_weight = crosshair.min_line_weight}, 'linear') -- smooth deselection
+		timer:tween('crosshair_line_width', .1, crosshair, {line_weight = crosshair.min_line_weight})
 	end
 	love.graphics.setLineWidth(crosshair.line_weight)
 	love.graphics.setColor(255, 255, 255, 150)

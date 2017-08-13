@@ -19,12 +19,6 @@ end
 function Body:update(dt)
 	Body.super.update(self, dt)
 
-	if self.selection_change then
-		-- self.selection_change = false
-		-- self.timer:cancel('radius')
-		-- self.timer:cancel('outer_radius')
-	end
-
 	if self.selected then
 		self:setRadius(self.selected_radius)
 	else
