@@ -29,7 +29,7 @@ function MainRoom:new()
 		body:setRadius(body.default_radius)
 	end
 
-	--[[ CAMERA ]]--
+	--[[ CAMERA/PLAYER ]]--
 	player = {
 		x = love.graphics.getWidth() / 2,
 		y = love.graphics.getHeight() / 2,
@@ -45,6 +45,14 @@ function MainRoom:new()
 	}
 	MainRoom:updateCamBounds()
 	camera = Camera(player.x, player.y)
+
+	--[[ RESOURCES ]]--
+	timer:every('resources', 1, function()
+		for i, station in ipairs(player.stations) do
+			player.resources.minerals = player.resources.minerals + (bodies[station.body_id].resources.minerals)
+			player.resources.farmed_goods = player.resources.farmed_goods + (bodies[station.body_id].resources.farmland)
+		end
+	end)
 
 	--[[ CROSSHAIR ]]--
 	initial_line_weight = 2
