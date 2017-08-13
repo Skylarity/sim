@@ -4,6 +4,9 @@ function MainRoom:new()
     MainRoom.super.new(self)
     self.area = Area()
 
+	--[[ FONTS ]]--
+	MainRoom.ui_font = love.graphics.newFont(16)
+
 	--[[ SELECTION ]]--
 	selected_body = nil
 
@@ -34,7 +37,11 @@ function MainRoom:new()
 		yspeed = 0,
 		maxSpeed = 700,
 		moving_to_body = false,
-		stations = {}
+		stations = {},
+		resources = {
+			minerals = 0,
+			farmed_goods = 0
+		}
 	}
 	MainRoom:updateCamBounds()
 	camera = Camera(player.x, player.y)
@@ -87,7 +94,16 @@ end
 
 function MainRoom:drawHud()
 	--[[ RESET ]]--
+	love.graphics.setFont(MainRoom.ui_font)
 	love.graphics.setColor(255, 255, 255, 255)
+
+	--[[ UI ]]--
+	-- Resources
+	love.graphics.setColor(0, 0, 0, 200)
+	love.graphics.rectangle('fill', 0, love.graphics.getHeight() - 32, love.graphics.getWidth(), 32)
+	love.graphics.setColor(255, 255, 255, 255)
+	local resource_string = 'Minerals: ' .. player.resources.minerals .. " - " .. "Food: " .. player.resources.farmed_goods
+	love.graphics.printf(resource_string, 0, love.graphics.getHeight() - 8 - 16, love.graphics.getWidth(), 'center')
 
 	--[[ CROSSHAIR ]]--
 	if selected_body then
