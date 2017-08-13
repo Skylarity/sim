@@ -7,32 +7,25 @@ function MainRoom:new()
 	--[[ FONTS ]]--
 	MainRoom.ui_font = love.graphics.newFont(16)
 
-	--[[ SELECTION ]]--
-	selected_body = nil
-
-	--[[ BODIES ]]--
-	bodies = {}
-	for i=1, love.math.random(6, 10) do
-		local coords = {
-			x = love.math.random(0, love.graphics.getWidth()),
-			y = love.math.random(0, love.graphics.getHeight())
-		}
-		table.insert(bodies, Body(coords.x,
-									coords.y,
-									25,
-									50,
-									2,
-									2))
-	end
-
-	for _, body in ipairs(bodies) do
-		body:setRadius(body.default_radius)
-	end
+	--[[ INPUTS ]]--
+	input:bind('mouse1', 'click')
+	-- Camera
+	MainRoom:cameraControlsInit()
+	-- Stations
+	input:bind('space', 'station')
 
 	--[[ CAMERA/PLAYER ]]--
+	world = {
+		bounds = {
+			x1 = 0,
+			y1 = 0,
+			x2 = 2000,
+			y2 = 2000
+		}
+	}
 	player = {
-		x = love.graphics.getWidth() / 2,
-		y = love.graphics.getHeight() / 2,
+		x = world.bounds.x2 / 2,
+		y = world.bounds.y2 / 2,
 		xspeed = 0,
 		yspeed = 0,
 		maxSpeed = 700,
@@ -47,14 +40,6 @@ function MainRoom:new()
 	camera = Camera(player.x, player.y)
 	-- TODO: Implement https://github.com/vrld/shine
 
-	--[[ RESOURCES ]]--
-	timer:every('resources', 1, function()
-		for i, station in ipairs(player.stations) do
-			player.resources.minerals = player.resources.minerals + (bodies[station.body_id].resources.minerals)
-			player.resources.farmed_goods = player.resources.farmed_goods + (bodies[station.body_id].resources.farmland)
-		end
-	end)
-
 	--[[ CROSSHAIR ]]--
 	initial_line_weight = 2
 	crosshair = {
@@ -63,12 +48,61 @@ function MainRoom:new()
 		line_weight = initial_line_weight
 	}
 
-	--[[ INPUTS ]]--
-	input:bind('mouse1', 'click')
-	-- Camera
-	MainRoom:cameraControlsInit()
-	-- Stations
-	input:bind('space', 'station')
+	--[[ RESOURCES ]]--
+	timer:every('resources', 1, function()
+		for i, station in ipairs(player.stations) do
+			player.resources.minerals = player.resources.minerals + (bodies[station.body_id].resources.minerals)
+			player.resources.farmed_goods = player.resources.farmed_goods + (bodies[station.body_id].resources.farmland)
+		end
+	end)
+
+	--[[ SELECTION ]]--
+	selected_body = nil
+
+	--[[ BODIES ]]--
+	body_default_radius, body_selected_radius = 50, 75
+	bodies = {}
+	for i=1, 10 do
+		local body = Body(0, -- x
+			0, -- y
+			body_default_radius, -- default radius
+			body_selected_radius, -- selected radius
+			2, -- outer radius multiplier
+			2) -- line width
+
+		local coords, coords_conflict = nil, nil
+		repeat
+			coords = {
+				x = love.math.random(world.bounds.x1, world.bounds.x2),
+				y = love.math.random(world.bounds.y1, world.bounds.y2)
+			}
+			local buffer = body_selected_radius * 4
+			local bounds = {
+				x1 = coords.x - buffer,
+				y1 = coords.y - buffer,
+				x2 = coords.x + buffer,
+				y2 = coords.y + buffer
+			}
+
+			for i, other_body in ipairs(bodies) do
+				if MainRoom:inSelectRange(other_body, bounds) then
+					print('conflict')
+					coords_conflict = true
+					break
+				else
+					coords_conflict = false
+				end
+			end
+		until not coords_conflict
+
+		body.x = coords.x
+		body.y = coords.y
+		table.insert(bodies, body)
+	end
+
+	for _, body in ipairs(bodies) do
+		body:setRadius(body.default_radius)
+	end
 end
 
 function MainRoom:update(dt)
