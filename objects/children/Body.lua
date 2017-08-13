@@ -17,6 +17,8 @@ function Body:new(x, y, default_radius, selected_radius, outer_radius_multiplier
 	self.selected, self.selection_change = true, false
 	self:select(false)
 
+	self.found = false
+
 	self.resources = {
 		minerals = love.math.random(0, 50),
 		farmland = love.math.random(0, 30),
@@ -64,4 +66,8 @@ function Body:setRadius(new_radius)
 		self.timer:tween('radius', 1, self, {radius = new_radius}, 'out-elastic')
 		self.timer:tween('outer_radius', 2, self, {outer_radius = new_outer_radius}, 'out-elastic')
 	end
+end
+
+function Body:setFound(was_found)
+	self.found = was_found
 end

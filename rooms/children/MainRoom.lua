@@ -7,6 +7,7 @@ function MainRoom:new()
 	--[[ FONTS ]]--
 	ui_font_size = 16
 	MainRoom.ui_font = love.graphics.newFont('fonts/RobotoMono-Bold.ttf', ui_font_size)
+	love.graphics.setFont(MainRoom.ui_font)
 
 	--[[ INPUTS ]]--
 	input:bind('mouse1', 'click')
@@ -35,7 +36,8 @@ function MainRoom:new()
 		resources = {
 			minerals = 0,
 			farmed_goods = 0
-		}
+		},
+		found_bodies = {}
 	}
 	MainRoom:updateCamBounds()
 	camera = Camera(player.x, player.y)
@@ -153,7 +155,7 @@ end
 
 function MainRoom:drawHud()
 	--[[ RESET ]]--
-	love.graphics.setFont(MainRoom.ui_font)
+	-- love.graphics.setFont(MainRoom.ui_font)
 	love.graphics.setColor(255, 255, 255, 255)
 
 	local width, width_half = love.graphics.getWidth(), love.graphics.getWidth() / 2
@@ -179,6 +181,18 @@ function MainRoom:drawHud()
 	love.graphics.line(width_half, height_half + selection_range + crosshair_offset, width_half, height - crosshair_offset)
 	love.graphics.line(width_half + selection_range + crosshair_offset, height_half, width - crosshair_offset, height_half)
 
+	--[[ FOUND BODIES ]]--
+	love.graphics.setColor(crosshair.color.r, crosshair.color.g, crosshair.color.b, crosshair.color.a * .75)
+	love.graphics.setLineWidth(1)
+	local arc_width = math.rad(6)
+	for i, body in ipairs(bodies) do
+		if body.found and i ~= selected_body then
+			-- TODO
+			local starting_angle = angleBetweenPoints(player, body)
+			love.graphics.arc('line', width_half, height_half, selection_range * 2, starting_angle - (arc_width / 2), starting_angle + (arc_width / 2))
+		end
+	end
+
 	--[[ UI ]]--
 	-- Coordinates
 	love.graphics.setColor(bg_color.r, bg_color.g, bg_color.b, bg_color.a)
@@ -189,6 +203,7 @@ function MainRoom:drawHud()
 
 	local coord_string = "location: (" .. string.format("%.0f", player.x) .. ", " .. string.format("%.0f", player.y) .. ")"
 	love.graphics.printf(coord_string, text_pad, text_pad, width, 'left')
+
 	-- Resources
 	love.graphics.setColor(bg_color.r, bg_color.g, bg_color.b, bg_color.a)
 	love.graphics.rectangle('fill', 0, height - (ui_font_size * 2), width, ui_font_size * 2)
@@ -204,17 +219,27 @@ function MainRoom:drawHud()
 	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.setLineWidth(2)
 	love.graphics.line(width_half, height - (ui_font_size * 2), width_half, height)
+
 	-- Selected body
 	if selected_body then
+		-- Window
 		love.graphics.setColor(bg_color.r, bg_color.g, bg_color.b, bg_color.a)
 		love.graphics.rectangle('fill', 0, ui_font_size * 2, width_half, height - ((ui_font_size * 2) * 2))
 		love.graphics.setColor(255, 255, 255, 255)
 		love.graphics.setLineWidth(2)
 		love.graphics.line(width_half, ui_font_size * 2, width_half, height - (ui_font_size * 2))
+
+		-- Text
+		local body_name = 'celestial body: ' .. bodies[selected_body].id
+		local body_minerals = bodies[selected_body].resources.minerals .. "% minerals"
+		local body_farmland = bodies[selected_body].resources.farmland .. "% farmable land"
+
+		local body_text = body_name .. "\n\n" .. body_minerals .. "\n" .. body_farmland
+		love.graphics.printf(body_text, text_pad, (ui_font_size * 2) + text_pad, width_half - text_pad, "left")
 	end
 
 	--[[ MOUSE ]]--
-	-- ALWAYS DRAW LAST --
+	-- !!! ALWAYS DRAW LAST !!! --
 	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.setLineWidth(2)
 	love.graphics.rectangle('line', love.mouse.getX() - mouse_radius, love.mouse.getY() - mouse_radius, mouse_radius * 2, mouse_radius * 2)
@@ -327,6 +352,8 @@ function MainRoom:bodyUpdate(dt)
 		if not found_selected_body and (MainRoom:inCameraSelectRange(body)) then
 			found_selected_body = true
 			selected_body = i
+
+			body:setFound(true)
 		end
 
 		if selected_body == i then
