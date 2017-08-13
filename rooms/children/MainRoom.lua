@@ -102,7 +102,7 @@ function MainRoom:drawHud()
 	love.graphics.setColor(0, 0, 0, 200)
 	love.graphics.rectangle('fill', 0, love.graphics.getHeight() - 32, love.graphics.getWidth(), 32)
 	love.graphics.setColor(255, 255, 255, 255)
-	local resource_string = 'Minerals: ' .. player.resources.minerals .. " - " .. "Food: " .. player.resources.farmed_goods
+	local resource_string = 'Minerals: ' .. string.format("%.2f", player.resources.minerals) .. " - " .. "Food: " .. string.format("%.2f", player.resources.farmed_goods)
 	love.graphics.printf(resource_string, 0, love.graphics.getHeight() - 8 - 16, love.graphics.getWidth(), 'center')
 
 	--[[ CROSSHAIR ]]--
