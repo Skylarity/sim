@@ -34,7 +34,7 @@ function MainRoom:new()
 		yspeed = 0,
 		maxSpeed = 700,
 		moving_to_body = false,
-		ships = {}
+		stations = {}
 	}
 	MainRoom:updateCamBounds()
 	camera = Camera(player.x, player.y)
@@ -51,7 +51,7 @@ function MainRoom:new()
 	input:bind('mouse1', 'click')
 	-- Camera
 	MainRoom:cameraControlsInit()
-	-- Ships
+	-- Stations
 	input:bind('space', 'ship')
 end
 
@@ -80,7 +80,7 @@ function MainRoom:drawWorld()
 	end
 	if selected_body then bodies[selected_body]:draw() end
 
-	for i, ship in ipairs(player.ships) do
+	for i, ship in ipairs(player.stations) do
 		ship:draw()
 	end
 end
@@ -137,7 +137,7 @@ function MainRoom:cameraControl(dt)
 		end
 	end
 
-	if input:pressed('click') then
+	if input:released('click') then
 		local cx, cy = camera:position()
 		local new_x, new_y = 0, 0
 		new_x = love.mouse.getX() - (love.graphics.getWidth() / 2) + cx
@@ -222,14 +222,14 @@ function MainRoom:bodyUpdate(dt)
 	end
 end
 
-function MainRoom:shipUpdate(dt)
+function MainRoom:StationUpdate(dt)
 	if input:pressed('ship') and selected_body then
-		table.insert(player.ships, Ship(bodies[selected_body].x,
+		table.insert(player.stations, Station(bodies[selected_body].x,
 										bodies[selected_body].y,
 										bodies[selected_body]))
 	end
 
-	for i, ship in ipairs(player.ships) do
+	for i, ship in ipairs(player.stations) do
 		ship:update(dt)
 	end
 end

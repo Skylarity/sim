@@ -1,7 +1,7 @@
-Ship = GameObject:extend()
+Station = GameObject:extend()
 
-function Ship:new(x, y, body)
-	Ship.super.new(self, x, y)
+function Station:new(x, y, body)
+	Station.super.new(self, x, y)
 
 	self.body = body
 
@@ -13,8 +13,8 @@ function Ship:new(x, y, body)
 	self.color = {r = 100, g = 200, b = 255, a = 255}
 end
 
-function Ship:update(dt)
-	Ship.super.update(self, dt)
+function Station:update(dt)
+	Station.super.update(self, dt)
 
 	--[[ ORBIT ]]--
 	self.x = self.body.x + math.cos(self.angle) * self.body.outer_radius
@@ -33,8 +33,8 @@ function Ship:update(dt)
 	-- end
 end
 
-function Ship:draw()
-	Ship.super.draw(self)
+function Station:draw()
+	Station.super.draw(self)
 
 	love.graphics.setColor(self.color.r, self.color.g, self.color.b, self.color.a)
 	love.graphics.circle('fill', self.x, self.y, self.radius)

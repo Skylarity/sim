@@ -16,6 +16,10 @@ function Body:new(x, y, default_radius, selected_radius, outer_radius_multiplier
 
 	self.selected, self.selection_change = true, false
 	self:select(false)
+
+	self.resources = {
+		
+	}
 end
 
 function Body:update(dt)
