@@ -2,8 +2,11 @@ Body = GameObject:extend()
 
 function Body:new(x, y, default_radius, selected_radius, outer_radius_multiplier, line_width)
 	Body.super.new(self, x, y)
+
 	self.radius, self.line_width, self.outer_radius_multiplier = 0, line_width, outer_radius_multiplier
 	self.outer_radius = self.radius * self.outer_radius_multiplier
+	self.default_radius, self.selected_radius = default_radius, selected_radius
+
 	self.color = {
 		r = (love.math.random() * 155) + 100,
 		g = (love.math.random() * 155) + 100,
@@ -13,7 +16,6 @@ function Body:new(x, y, default_radius, selected_radius, outer_radius_multiplier
 
 	self.selected, self.selection_change = true, false
 	self:select(false)
-	self.default_radius, self.selected_radius = default_radius, selected_radius
 end
 
 function Body:update(dt)

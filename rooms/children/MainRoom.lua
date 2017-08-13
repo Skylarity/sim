@@ -18,7 +18,7 @@ function MainRoom:new()
 									coords.y,
 									25,
 									50,
-									love.math.random() + 1,
+									(love.math.random() + 1.5) - .5,
 									2))
 	end
 
