@@ -6,7 +6,7 @@ function MainRoom:new()
 
 	--[[ FONTS ]]--
 	ui_font_size = 16
-	MainRoom.ui_font = love.graphics.newFont(ui_font_size)
+	MainRoom.ui_font = love.graphics.newFont('fonts/RobotoMono-Bold.ttf', ui_font_size)
 
 	--[[ INPUTS ]]--
 	input:bind('mouse1', 'click')
