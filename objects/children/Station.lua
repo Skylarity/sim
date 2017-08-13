@@ -1,9 +1,10 @@
 Station = GameObject:extend()
 
-function Station:new(x, y, body)
+function Station:new(x, y, body, body_id)
 	Station.super.new(self, x, y)
 
 	self.body = body
+	self.body_id = body_id
 
 	self.angle = 0
 	self.min_radius, self.max_radius = 4, 6
@@ -20,7 +21,7 @@ function Station:update(dt)
 	self.x = self.body.x + math.cos(self.angle) * self.body.outer_radius
 	self.y = self.body.y + math.sin(self.angle) * self.body.outer_radius
 
-	self.angle = self.angle + (1 * dt)
+	self.angle = self.angle + math.rad(1)
 
 	--[[ SELECTION ]]--
 	-- if self.body.selection_change then

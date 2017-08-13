@@ -18,7 +18,9 @@ function Body:new(x, y, default_radius, selected_radius, outer_radius_multiplier
 	self:select(false)
 
 	self.resources = {
-		
+		minerals = love.math.random(0, 100),
+		farmland = love.math.random(0, 100),
+		debris = love.math.random(0, 100)
 	}
 end
 

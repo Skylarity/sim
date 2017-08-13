@@ -52,13 +52,13 @@ function MainRoom:new()
 	-- Camera
 	MainRoom:cameraControlsInit()
 	-- Stations
-	input:bind('space', 'ship')
+	input:bind('space', 'station')
 end
 
 function MainRoom:update(dt)
 	MainRoom:cameraControl(dt)
 	MainRoom:bodyUpdate(dt)
-	MainRoom:shipUpdate(dt)
+	MainRoom:stationUpdate(dt)
 end
 
 function MainRoom:draw()
@@ -80,8 +80,8 @@ function MainRoom:drawWorld()
 	end
 	if selected_body then bodies[selected_body]:draw() end
 
-	for i, ship in ipairs(player.stations) do
-		ship:draw()
+	for i, station in ipairs(player.stations) do
+		station:draw()
 	end
 end
 
@@ -222,14 +222,31 @@ function MainRoom:bodyUpdate(dt)
 	end
 end
 
-function MainRoom:StationUpdate(dt)
-	if input:pressed('ship') and selected_body then
+function MainRoom:stationUpdate(dt)
+	if input:pressed('station') and selected_body then
 		table.insert(player.stations, Station(bodies[selected_body].x,
 										bodies[selected_body].y,
-										bodies[selected_body]))
+										bodies[selected_body],
+										selected_body))
+
+		--[[ Gross code that auto-spaces the stations out ]]--
+		local station_count = 0
+		for i, station in ipairs(player.stations) do
+			if station.body_id == selected_body then
+				station_count = station_count + 1
+			end
+		end
+		local j = 0
+		for i, station in ipairs(player.stations) do
+			if station.body_id == selected_body then
+				j = j + 1
+				station.angle = ((math.pi * 2) / station_count) * j
+			end
+		end
+		--[[ /Gross code ]]--
 	end
 
-	for i, ship in ipairs(player.stations) do
-		ship:update(dt)
+	for i, station in ipairs(player.stations) do
+		station:update(dt)
 	end
 end
