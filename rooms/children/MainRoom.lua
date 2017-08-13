@@ -188,7 +188,7 @@ function MainRoom:drawHud()
 	for i, body in ipairs(bodies) do
 		if body.found and i ~= selected_body then
 			-- TODO
-			local starting_angle = angleBetweenPoints(player, body)
+			local starting_angle = math.rad(angleBetweenPoints(player, body))
 			love.graphics.arc('line', width_half, height_half, selection_range * 2, starting_angle - (arc_width / 2), starting_angle + (arc_width / 2))
 		end
 	end
