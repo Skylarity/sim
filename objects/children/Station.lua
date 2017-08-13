@@ -11,7 +11,7 @@ function Station:new(x, y, body, body_id)
 	if self.body.selected then self.radius = self.max_radius
 	else self.radius = self.min_radius end
 
-	self.color = {r = 100, g = 200, b = 255, a = 255}
+	self.color = {r = 200, g = 200, b = 200, a = 255}
 
 	--[[ RESOURCES ]]--
 	-- self.timer:every('resources', 1, function()
