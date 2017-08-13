@@ -48,6 +48,7 @@ function MainRoom:new()
 	}
 
 	--[[ INPUTS ]]--
+	input:bind('mouse1', 'click')
 	-- Camera
 	MainRoom:cameraControlsInit()
 	-- Ships
@@ -135,7 +136,17 @@ function MainRoom:cameraControl(dt)
 			end)
 		end
 	end
+
+	if input:pressed('click') then
+		local cx, cy = camera:position()
+		local new_x, new_y = 0, 0
+		new_x = love.mouse.getX() - (love.graphics.getWidth() / 2) + cx
+		new_y = love.mouse.getY() - (love.graphics.getHeight() / 2) + cy
+		timer:tween('camera_move_to_click', .2, player, {x = new_x, y = new_y})
+	end
+
 	if input:down('camMoving') then
+		timer:cancel('camera_move_to_click')
 		timer:cancel('move_to_body')
 		player.moving_to_body = false
 	end
