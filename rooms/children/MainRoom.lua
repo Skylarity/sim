@@ -46,7 +46,7 @@ function MainRoom:new()
 	local s_scanlines = shine.scanlines()
 	local s_sep_chroma = shine.separate_chroma({
 		angle = math.rad(45),
-		radius = 3
+		radius = 2.5
 	})
 	cam_effects = s_filmgrain:chain(s_sep_chroma):chain(s_scanlines):chain(s_crt)
 
@@ -205,7 +205,13 @@ function MainRoom:drawHud()
 	love.graphics.setLineWidth(2)
 	love.graphics.line(width_half, height - (ui_font_size * 2), width_half, height)
 	-- Selected body
-	-- TODO
+	if selected_body then
+		love.graphics.setColor(bg_color.r, bg_color.g, bg_color.b, bg_color.a)
+		love.graphics.rectangle('fill', 0, ui_font_size * 2, width_half, height - ((ui_font_size * 2) * 2))
+		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.setLineWidth(2)
+		love.graphics.line(width_half, ui_font_size * 2, width_half, height - (ui_font_size * 2))
+	end
 
 	--[[ MOUSE ]]--
 	-- ALWAYS DRAW LAST --
