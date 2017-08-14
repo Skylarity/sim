@@ -13,16 +13,18 @@ function MainRoom:new()
 	input:bind('mouse1', 'click')
 	-- Camera
 	MainRoom:cameraControlsInit()
+	-- Bodies
+	input:bind('space', 'discover_body')
 	-- Stations
-	input:bind('space', 'station')
+	input:bind('s', 'place_station')
 
 	--[[ CAMERA/PLAYER ]]--
 	world = {
 		bounds = {
 			x1 = 0,
 			y1 = 0,
-			x2 = 2000,
-			y2 = 2000
+			x2 = 4000,
+			y2 = 4000
 		}
 	}
 	player = {
@@ -79,7 +81,8 @@ function MainRoom:new()
 	--[[ BODIES ]]--
 	body_default_radius, body_selected_radius = 50, 75
 	bodies = {}
-	for i=1, 10 do
+	num_bodies = 15
+	for i = 1, num_bodies do
 		local body = Body(0, -- x
 			0, -- y
 			body_default_radius, -- default radius
@@ -119,6 +122,12 @@ function MainRoom:new()
 	for _, body in ipairs(bodies) do
 		body:setRadius(body.default_radius)
 	end
+
+	--[[ STARTING BODY ]]--
+	starting_body = bodies[love.math.random(num_bodies)]
+	starting_body.name = "K-1a" -- (K)nown
+	starting_body:setFound(true)
+	player.x, player.y = starting_body.x, starting_body.y
 end
 
 function MainRoom:update(dt)
@@ -167,13 +176,12 @@ end
 
 function MainRoom:drawHud()
 	--[[ RESET ]]--
-	-- love.graphics.setFont(MainRoom.ui_font)
 	love.graphics.setColor(255, 255, 255, 255)
 
 	local width, width_half = love.graphics.getWidth(), love.graphics.getWidth() / 2
 	local height, height_half = love.graphics.getHeight(), love.graphics.getHeight() / 2
 	local text_pad = 8
-	local bg_color = {r = 0, g = 0, b = 0, a = 100}
+	local bg_color = {r = 0, g = 0, b = 0, a = 150}
 
 	--[[ CROSSHAIR ]]--
 	if selected_body then
@@ -187,7 +195,7 @@ function MainRoom:drawHud()
 
 	love.graphics.setLineWidth(1)
 	love.graphics.setColor(crosshair.color.r, crosshair.color.g, crosshair.color.b, crosshair.color.a * .75)
-	local crosshair_offset = 10
+	local crosshair_offset = 50
 	love.graphics.line(width_half, crosshair_offset, width_half, height_half - selection_range - crosshair_offset)
 	love.graphics.line(crosshair_offset, height_half, width_half - selection_range - crosshair_offset, height_half)
 	love.graphics.line(width_half, height_half + selection_range + crosshair_offset, width_half, height - crosshair_offset)
@@ -241,12 +249,22 @@ function MainRoom:drawHud()
 		love.graphics.line(width_half, ui_font_size * 2, width_half, height - (ui_font_size * 2))
 
 		-- Text
-		local body_name = 'celestial body: ' .. bodies[selected_body].id
-		local body_minerals = bodies[selected_body].resources.minerals .. "% minerals"
-		local body_farmland = bodies[selected_body].resources.farmland .. "% farmable land"
+		local divider = "-----\n"
+		local discovered_text = "marked - tracking\n"
+		if not bodies[selected_body].found then discovered_text = "!! unmarked\n" end
+		local body_name = 'celestial body: ' .. bodies[selected_body].name .. "\n"
+		local body_minerals = bodies[selected_body].resources.minerals .. "% minerals\n"
+		local body_farmland = bodies[selected_body].resources.farmland .. "% farmable land\n"
 
-		local body_text = body_name .. "\n\n" .. body_minerals .. "\n" .. body_farmland
-		love.graphics.printf(body_text, text_pad, (ui_font_size * 2) + text_pad, width_half - text_pad, "left")
+		local body_text = discovered_text .. divider .. body_name .. divider .. body_minerals .. body_farmland
+
+		local mark_text = "'space' - toggle mark"
+		local station_text = "'s' - place station"
+		local help_text = mark_text .."\n" .. station_text
+		local num_lines = 2
+
+		love.graphics.printf(body_text, text_pad, (ui_font_size * 2) + text_pad, width_half - (text_pad * 2), "left")
+		love.graphics.printf(help_text, text_pad, height - ((ui_font_size * 2) + text_pad) - ((ui_font_size * num_lines) + text_pad), width_half - (text_pad * 2), "left")
 	end
 
 	--[[ MOUSE ]]--
@@ -261,21 +279,13 @@ function MainRoom:cameraControlsInit()
 		'up',
 		'down',
 		'left',
-		'right',
-		'w',
-		's',
-		'a',
-		'd'
+		'right'
 	}
 
 	input:bind('up', 'camUp')
 	input:bind('down', 'camDown')
 	input:bind('left', 'camLeft')
 	input:bind('right', 'camRight')
-	input:bind('w', 'camUp')
-	input:bind('s', 'camDown')
-	input:bind('a', 'camLeft')
-	input:bind('d', 'camRight')
 
 	for _, control in ipairs(cameraControlButtons) do
 		input:bind(control, 'camMoving')
@@ -363,8 +373,6 @@ function MainRoom:bodyUpdate(dt)
 		if not found_selected_body and (MainRoom:inCameraSelectRange(body)) then
 			found_selected_body = true
 			selected_body = i
-
-			body:setFound(true)
 		end
 
 		if selected_body == i then
@@ -381,10 +389,17 @@ function MainRoom:bodyUpdate(dt)
 	if not found_selected_body then
 		selected_body = nil
 	end
+
+	if selected_body then
+		if input:pressed('discover_body') then
+			local body = bodies[selected_body]
+			body:setFound(not body.found)
+		end
+	end
 end
 
 function MainRoom:stationUpdate(dt)
-	if input:pressed('station') and selected_body then
+	if input:pressed('place_station') and selected_body then
 		table.insert(player.stations, Station(bodies[selected_body].x,
 										bodies[selected_body].y,
 										bodies[selected_body],
