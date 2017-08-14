@@ -143,11 +143,23 @@ function MainRoom:deactivate()
 end
 
 function MainRoom:drawWorld()
+	--[[ BOUNDARY ]]--
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setLineWidth(2)
+	love.graphics.rectangle('line', world.bounds.x1, world.bounds.y1, world.bounds.x2, world.bounds.y2)
+	love.graphics.setColor(200, 255, 200, 50)
+	love.graphics.rectangle('fill', world.bounds.x1 - love.graphics.getWidth(), world.bounds.y1, love.graphics.getWidth(), world.bounds.y2)
+	love.graphics.rectangle('fill', world.bounds.x2, world.bounds.y1, world.bounds.x2 + love.graphics.getWidth(), world.bounds.y2)
+	love.graphics.rectangle('fill', world.bounds.x1 - love.graphics.getWidth(), world.bounds.y1, world.bounds.x2 + (love.graphics.getWidth() * 2), world.bounds.y1 - love.graphics.getHeight())
+	love.graphics.rectangle('fill', world.bounds.x1 - love.graphics.getWidth(), world.bounds.y2, world.bounds.x2 + (love.graphics.getWidth() * 2), world.bounds.y2 + love.graphics.getHeight())
+
+	--[[ BODIES ]]--
 	for i, body in ipairs(bodies) do
 		if selected_body ~= i then body:draw() end
 	end
 	if selected_body then bodies[selected_body]:draw() end
 
+	--[[ STATIONS ]]--
 	for i, station in ipairs(player.stations) do
 		station:draw()
 	end
