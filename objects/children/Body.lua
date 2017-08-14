@@ -79,6 +79,6 @@ function Body:setFound(was_found)
 	self.found = was_found
 
 	local num_stations = 0
-	for i, station in ipairs(self.stations) do num_stations = num_stations + 1 end -- TODO: Figure out how to get length
+	for i, station in ipairs(self.stations) do num_stations = num_stations + 1 end -- *APPARENTLY* this is the _only way_
 	if num_stations > 0 then self.found = true end
 end

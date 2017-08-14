@@ -268,7 +268,7 @@ function MainRoom:drawHud()
 		local body_name = 'celestial body: ' .. body.name .. "\n"
 
 		local num_stations = 0
-		for i, station in ipairs(body.stations) do num_stations = num_stations + 1 end -- TODO: Figure out how to get length
+		for i, station in ipairs(body.stations) do num_stations = num_stations + 1 end -- *APPARENTLY* this is the _only way_
 
 		local body_minerals = body.resources.minerals .. "% minerals"
 		local minerals_per_s = body.resources.minerals * num_stations
