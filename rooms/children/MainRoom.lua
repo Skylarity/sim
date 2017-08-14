@@ -59,11 +59,11 @@ function MainRoom:new()
 	mouse_radius = 4
 
 	--[[ CROSSHAIR ]]--
-	initial_line_weight = 2
+	ch_initial_line_weight = 2
 	crosshair = {
-		min_line_weight = initial_line_weight,
+		min_line_weight = ch_initial_line_weight,
 		max_line_weight = 6,
-		line_weight = initial_line_weight,
+		line_weight = ch_initial_line_weight,
 		color = {r = 255, g = 255, b = 255, a = 150}
 	}
 
