@@ -35,9 +35,13 @@ function MainRoom:new()
 		maxSpeed = 700,
 		moving_to_body = false,
 		stations = {},
+		station_info = {
+			stations_available = 0,
+			cost = 100
+		},
 		resources = {
-			minerals = 0,
-			farmed_goods = 0
+			minerals = 100,
+			farmed_goods = 100
 		},
 		found_bodies = {}
 	}
@@ -68,12 +72,16 @@ function MainRoom:new()
 	}
 
 	--[[ RESOURCES ]]--
-	timer:every('resources', 1, function()
+	function resourceLoop()
 		for i, station in ipairs(player.stations) do
 			player.resources.minerals = player.resources.minerals + (bodies[station.body_id].resources.minerals)
 			player.resources.farmed_goods = player.resources.farmed_goods + (bodies[station.body_id].resources.farmland)
 		end
-	end)
+
+		player.station_info.stations_available = math.floor(player.resources.minerals / player.station_info.cost)
+	end
+	resourceLoop()
+	timer:every('resources', 1, resourceLoop)
 
 	--[[ SELECTION ]]--
 	selected_body = nil
@@ -124,7 +132,12 @@ function MainRoom:new()
 	end
 
 	--[[ STARTING BODY ]]--
-	starting_body = bodies[love.math.random(num_bodies)]
+	local found_starting_body = false
+	starting_body = nil
+	repeat
+		starting_body = bodies[love.math.random(num_bodies)]
+		if starting_body.resources.minerals > 0 then found_starting_body = true end
+	until found_starting_body
 	starting_body.name = "K-1a" -- (K)nown
 	starting_body:setFound(true)
 	player.x, player.y = starting_body.x, starting_body.y
@@ -241,6 +254,7 @@ function MainRoom:drawHud()
 
 	-- Selected body
 	if selected_body then
+		local body = bodies[selected_body]
 		-- Window
 		love.graphics.setColor(bg_color.r, bg_color.g, bg_color.b, bg_color.a)
 		love.graphics.rectangle('fill', 0, ui_font_size * 2, width_half, height - ((ui_font_size * 2) * 2))
@@ -250,16 +264,28 @@ function MainRoom:drawHud()
 
 		-- Text
 		local divider = "-----\n"
-		local discovered_text = "marked - tracking\n"
-		if not bodies[selected_body].found then discovered_text = "!! unmarked\n" end
-		local body_name = 'celestial body: ' .. bodies[selected_body].name .. "\n"
-		local body_minerals = bodies[selected_body].resources.minerals .. "% minerals\n"
-		local body_farmland = bodies[selected_body].resources.farmland .. "% farmable land\n"
 
-		local body_text = discovered_text .. divider .. body_name .. divider .. body_minerals .. body_farmland
+		local body_name = 'celestial body: ' .. body.name .. "\n"
+
+		local num_stations = 0
+		for i, station in ipairs(body.stations) do num_stations = num_stations + 1 end -- TODO: Figure out how to get length
+
+		local body_minerals = body.resources.minerals .. "% minerals"
+		local minerals_per_s = body.resources.minerals * num_stations
+		if minerals_per_s > 0 then body_minerals = body_minerals .. " (+" .. minerals_per_s .. "/s)\n"
+		else body_minerals = body_minerals .. "\n" end
+
+		local food_per_s = body.resources.farmland * num_stations
+		local body_farmland = body.resources.farmland .. "% farmable land"
+		if food_per_s > 0 then body_farmland = body_farmland .. " (+" .. food_per_s .. "/s)\n"
+		else body_farmland = body_farmland .. "\n" end
+
+		local body_text = divider .. body_name .. divider .. body_minerals .. body_farmland
 
 		local mark_text = "'space' - toggle mark"
-		local station_text = "'s' - place station"
+		if body.found then mark_text = mark_text .. " (tracked)" else mark_text = mark_text .. " (untracked)" end
+		if num_stations > 0 then mark_text = "tracked (stations built)" end
+		local station_text = "'s' - place station (" .. player.station_info.stations_available .. " available)"
 		local help_text = mark_text .."\n" .. station_text
 		local num_lines = 2
 
@@ -399,27 +425,37 @@ function MainRoom:bodyUpdate(dt)
 end
 
 function MainRoom:stationUpdate(dt)
-	if input:pressed('place_station') and selected_body then
-		table.insert(player.stations, Station(bodies[selected_body].x,
-										bodies[selected_body].y,
-										bodies[selected_body],
-										selected_body))
+	if input:pressed('place_station') and selected_body and player.station_info.stations_available > 0 then
+		if player.resources.minerals >= player.station_info.cost then
+			player.station_info.stations_available = player.station_info.stations_available - 1
+			player.resources.minerals = player.resources.minerals - player.station_info.cost
 
-		--[[ Gross code that auto-spaces the stations out ]]--
-		local station_count = 0
-		for i, station in ipairs(player.stations) do
-			if station.body_id == selected_body then
-				station_count = station_count + 1
+			local body = bodies[selected_body]
+
+			local station = Station(body.x,
+									body.y,
+									body,
+									selected_body)
+			table.insert(player.stations, station)
+			table.insert(body.stations, station)
+			body:setFound(true)
+
+			--[[ Gross code that auto-spaces the stations out ]]--
+			local station_count = 0
+			for i, station in ipairs(player.stations) do
+				if station.body_id == selected_body then
+					station_count = station_count + 1
+				end
 			end
-		end
-		local j = 0
-		for i, station in ipairs(player.stations) do
-			if station.body_id == selected_body then
-				j = j + 1
-				station.angle = ((math.pi * 2) / station_count) * j
+			local j = 0
+			for i, station in ipairs(player.stations) do
+				if station.body_id == selected_body then
+					j = j + 1
+					station.angle = ((math.pi * 2) / station_count) * j
+				end
 			end
+			--[[ /Gross code ]]--
 		end
-		--[[ /Gross code ]]--
 	end
 
 	for i, station in ipairs(player.stations) do

@@ -12,12 +12,6 @@ function Station:new(x, y, body, body_id)
 	else self.radius = self.min_radius end
 
 	self.color = {r = 200, g = 200, b = 200, a = 255}
-
-	--[[ RESOURCES ]]--
-	-- self.timer:every('resources', 1, function()
-	-- 	player.resources.minerals = player.resources.minerals + (self.body.resources.minerals)
-	-- 	player.resources.farmed_goods = player.resources.farmed_goods + (self.body.resources.farmland)
-	-- end)
 end
 
 function Station:update(dt)

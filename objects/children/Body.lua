@@ -26,6 +26,9 @@ function Body:new(x, y, default_radius, selected_radius, outer_radius_multiplier
 		farmland = love.math.random(0, 30),
 		debris = love.math.random(0, 100)
 	}
+
+	self.stations = {}
+	self.vehicles = {}
 end
 
 function Body:update(dt)
@@ -44,7 +47,9 @@ function Body:draw()
 	love.graphics.setColor(self.color.r, self.color.g, self.color.b, self.color.a)
 	love.graphics.setLineWidth(self.line_width)
 
-	love.graphics.circle('fill', self.x, self.y, self.radius)
+	local main_mode = 'fill'
+	if not self.found then main_mode = 'line' end
+	love.graphics.circle(main_mode, self.x, self.y, self.radius)
 	love.graphics.circle('line', self.x, self.y, self.outer_radius)
 
 	--[[ CLEANUP ]]--
@@ -72,4 +77,8 @@ end
 
 function Body:setFound(was_found)
 	self.found = was_found
+
+	local num_stations = 0
+	for i, station in ipairs(self.stations) do num_stations = num_stations + 1 end -- TODO: Figure out how to get length
+	if num_stations > 0 then self.found = true end
 end
